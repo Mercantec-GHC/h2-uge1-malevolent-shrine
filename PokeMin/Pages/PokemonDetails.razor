@@ -1,0 +1,65 @@
+@page "/pokemon-details/{id:int}"
+
+
+<h3>Pokémon Details</h3>
+
+@if (details == null)
+{
+    <p>Henter detaljer...</p>
+}
+else
+{
+    <p><strong>Navn:</strong> @details.Name</p>
+    <p><strong>Højde:</strong> @details.Height</p>
+    <p><strong>Vægt:</strong> @details.Weight</p>
+    <img src="@details.Sprites.Front_Default" />
+
+    <p><strong>Type(r):</strong></p>
+    <ul>
+        @foreach (var t in details.Types)
+        {
+            <li>@t.Type.Name</li>
+        }
+    </ul>
+}
+
+@code {
+    private PokemonDetailsData details;
+    
+    [Parameter]
+    public int id { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var http = new HttpClient();
+        details = await http.GetFromJsonAsync<PokemonDetailsData>(
+            $"https://pokeapi.co/api/v2/pokemon/{id}");
+
+    }
+    
+    public class PokemonDetailsData
+    {
+        public string Name { get; set; }
+        public int Height { get; set; }
+        public int Weight { get; set; }
+        public Sprites Sprites { get; set; }
+        public List<PokemonType> Types { get; set; }
+    }
+
+    public class Sprites
+    {
+        public string Front_Default { get; set; }
+    }
+
+    public class PokemonType
+    {
+        public TypeInfo Type { get; set; }
+    }
+
+    public class TypeInfo
+    {
+        public string Name { get; set; }
+    }
+
+}

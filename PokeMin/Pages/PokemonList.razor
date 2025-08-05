@@ -1,0 +1,56 @@
+@page "/pokemon"
+@using System.Net.Http
+@using System.Net.Http.Json
+
+<h3>Pokémon List</h3>
+
+@if (pokemonList == null)
+{
+    <p>Henter data...</p>
+}
+else
+{
+    <ul>
+        @foreach (var pokemon in pokemonList)
+        {
+            <li>
+                <a href="/pokemon-details/@GetPokemonId(pokemon.Url)">
+                    @pokemon.Name
+                </a>
+            </li>
+
+        }
+    </ul>
+}
+
+@code {
+    private List<Pokemon> pokemonList;
+    
+    private string GetPokemonId(string url)
+    {
+        // Удаляем последний слэш, делим по "/"
+        var parts = url.TrimEnd('/').Split('/');
+        return parts.Last();
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var http = new HttpClient();
+        var response = await http.GetFromJsonAsync<PokemonResponse>(
+            "https://pokeapi.co/api/v2/pokemon?limit=20");
+
+        pokemonList = response.Results;
+    }
+
+    public class Pokemon
+    {
+        public string Name { get; set; }
+        public string Url { get; set; }
+    }
+
+    public class PokemonResponse
+    {
+        public List<Pokemon> Results { get; set; }
+    }
+}
