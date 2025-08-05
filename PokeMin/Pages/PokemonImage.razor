@@ -1,0 +1,28 @@
+@inject HttpClient Http
+@using PokeMin.Models
+
+@if (spriteUrl == null)
+{
+    <p>Billedet indlæses...</p>
+}
+else
+{
+    <img src="@spriteUrl" alt="Pokemon" />
+}
+
+@code {
+    [Parameter]
+    public string Url { get; set; }
+
+    private string spriteUrl;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Url))
+        {
+            var details = await Http.GetFromJsonAsync<PokemonDetailsData>(Url);
+            spriteUrl = details?.Sprites?.Front_Default;
+            StateHasChanged(); // принудительное обновление
+        }
+    }
+}

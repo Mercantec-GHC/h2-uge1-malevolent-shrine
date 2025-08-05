@@ -1,4 +1,5 @@
 @page "/pokemon-details/{id:int}"
+@using PokeMin.Models
 
 
 <h3>Pokémon Details</h3>
@@ -36,30 +37,6 @@ else
         details = await http.GetFromJsonAsync<PokemonDetailsData>(
             $"https://pokeapi.co/api/v2/pokemon/{id}");
 
-    }
-    
-    public class PokemonDetailsData
-    {
-        public string Name { get; set; }
-        public int Height { get; set; }
-        public int Weight { get; set; }
-        public Sprites Sprites { get; set; }
-        public List<PokemonType> Types { get; set; }
-    }
-
-    public class Sprites
-    {
-        public string Front_Default { get; set; }
-    }
-
-    public class PokemonType
-    {
-        public TypeInfo Type { get; set; }
-    }
-
-    public class TypeInfo
-    {
-        public string Name { get; set; }
     }
 
 }

@@ -1,0 +1,114 @@
+.game-container {
+    max-width: 450px; /* Немного увеличим контейнер */
+    margin: 2rem auto;
+    padding: 2rem;
+    background: linear-gradient(135deg, #fce4ec, #e0f7fa); /* Розово-циановый градиент */
+    border-radius: 20px; /* Более скругленные углы */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif; /* Более "милый" шрифт */
+    border: 2px solid #fff;
+}
+
+.game-title {
+    color: #ad1457; /* Темно-розовый */
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+.game-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 1.5rem;
+    color: #00796b; /* Темно-циановый */
+    font-size: 1.1rem;
+}
+
+.pokemon-image-wrapper {
+    background-color: rgba(255, 255, 255, 0.7); /* Полупрозрачный белый */
+    border-radius: 100px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    height: 300px; /* Увеличиваем высоту контейнера */
+    width: 300px; /* Добавляем фиксированную ширину */
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #ff80ab; /* Розовая пунктирная рамка */
+}
+
+/* картинку внутри обертки */
+.pokemon-image-wrapper ::deep img {
+    width: 400px !important; /* Принудительно устанавливаем ширину */
+    height: 400px !important; /* Принудительно устанавливаем высоту */
+    image-rendering: pixelated; /* Сохраняем четкость пикселей при увеличении */
+    image-rendering: -moz-crisp-edges; /* Для Firefox */
+    image-rendering: crisp-edges; /* Для других браузеров */
+    object-fit: contain; /* Сохраняем пропорции изображения */
+    filter: none; /* Убираем любые фильтры */
+}
+
+
+.answer-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-answer {
+    padding: 0.75rem;
+    border: 2px solid #80deea; /* Циановая рамка */
+    border-radius: 12px; /* Более скругленные кнопки */
+    background-color: #fff;
+    color: #006064; /* Темный циан */
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-answer:hover {
+    background-color: #e0f7fa; /* Светло-циановый */
+    transform: translateY(-2px); /* Небольшой эффект приподнятия */
+}
+
+.btn-answer:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.result-message {
+    margin-top: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.result-message.correct {
+    color: #2e7d32; /* Более темный зеленый */
+}
+
+.result-message.incorrect {
+    color: #c62828; /* Более темный красный */
+}
+
+.btn-next {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(45deg, #ff80ab, #80deea); /* Розово-циановый градиент для кнопки */
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.btn-next:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
