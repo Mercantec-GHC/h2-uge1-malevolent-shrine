@@ -35,4 +35,8 @@ func main() {
 		return
 	}
 
+	for _, pokemon := range pokeAPIResponse.Results {
+		fmt.Println(pokemon.Name)
+	}
+
 }
