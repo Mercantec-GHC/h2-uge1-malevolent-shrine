@@ -57,6 +57,21 @@ func handleGame(w http.ResponseWriter, r *http.Request) {
 	randomIndex := rand.Intn(len(pokemonList))
 	correctPokemon := pokemonList[randomIndex]
 
+	///load the details of the selected Pokemon
+	detailsURL := correctPokemon.URL
+	response, err := http.Get(detailsURL)
+	if err != nil {
+		http.Error(w, "Error fetching Pokemon details", http.StatusInternalServerError)
+		return
+	}
+
+	defer response.Body.Close()
+
+	var details PokemonDetails
+	body, err := io.ReadAll(response.Body)
+	json.Unmarshal(body, &details)
+	imageURL := details.Sprites.FrontDefault
+
 	// Generate two extra random names
 	var options []string
 	options = append(options, correctPokemon.Name)
@@ -144,7 +159,8 @@ func handleGame(w http.ResponseWriter, r *http.Request) {
 	</head>
 	<body>
 		<h1>Hvem er denne Pokémon?</h1>
-		<!-- Пока без картинки -->
+<img src="` + imageURL + `" alt="Pokemon" style="width:150px; image-rendering: pixelated;"><br/><br/>
+
 		<form method="POST" action="/check">
 			<input type="hidden" name="correct" value="` + correctPokemon.Name + `">
 			<input type="hidden" name="index" value="` + fmt.Sprint(randomIndex) + `">
