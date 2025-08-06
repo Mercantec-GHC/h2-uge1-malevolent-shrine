@@ -14,7 +14,7 @@
                 @foreach (var pokemon in pokemonList.Take(12))
                 {
                     <div class="pokemon-card">
-                        <img src="@pokemon.ImageUrl" alt="@pokemon.Name" />
+                        <img src="@($"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{GetPokemonId(pokemon.Url)}.png")" alt="@pokemon.Name" />
                         <p>
                             <a href="/pokemon-details?IdOrName=@GetPokemonId(pokemon.Name)">
                                 @Capitalize(pokemon.Name)
@@ -25,16 +25,19 @@
             </div>
 
             <div class="pagination">
-                <button @onclick="PrevPage" disabled="@(CurrentPage == 0)">← Forrige</button>
-                <span>Side: @(CurrentPage + 1)</span>
-                <button @onclick="NextPage">Næste →</button>
+                <button class="page-button" @onclick="PrevPage" disabled="@(CurrentPage == 0)">← Forrige</button>
+                <input class="page-button" type="number" value="@(CurrentPage + 1)" @onchange="GoToPage" />
+                <button class="page-button" @onclick="NextPage">Næste →</button>
             </div>
         }
 </div>
 
+
+
 @code {
-    private List<PokemonCard> pokemonList;
+    private List<Pokemon> pokemonList;
     private int CurrentPage = 0;
+    private int inputPage = 1;
     private const int PageSize = 12;
 
     private string GetPokemonId(string url)
@@ -52,7 +55,7 @@
     private async Task LoadPage()
     {
         int offset = CurrentPage * PageSize;
-        pokemonList = await API.GetAllPokemons(offset, PageSize);
+        pokemonList = await API.GetAllPokemonsAsync(offset, PageSize);
     }
 
     private async Task NextPage()
@@ -69,13 +72,17 @@
             await LoadPage();
         }
     }
-
-    private int GetIdFromUrl(string url)
-    {
-        var parts = url.TrimEnd('/').Split('/');
-        return int.Parse(parts[^1]);
-    }
     
+    private async Task GoToPage(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int pageNumber) && pageNumber >= 1)
+        {
+            CurrentPage = pageNumber - 1;
+            await LoadPage();
+        }
+    }
+
+
     private string Capitalize(string input)
     {
         if (string.IsNullOrEmpty(input)) return input;

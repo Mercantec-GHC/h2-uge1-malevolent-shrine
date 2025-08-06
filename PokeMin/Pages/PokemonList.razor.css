@@ -44,3 +44,45 @@
     }
 
 
+.page-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 70px;
+}
+
+    .page-button:hover:enabled {
+        background-color: #0056b3;
+    }
+
+    .page-button:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+    }
+
+    .page-button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+        color: #666666;
+    }
+
+input[type="number"].page-button {
+    appearance: none;
+    -moz-appearance: textfield;
+}
+
+    input[type="number"].page-button::-webkit-inner-spin-button,
+    input[type="number"].page-button::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+
+
