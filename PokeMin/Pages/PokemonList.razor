@@ -1,34 +1,47 @@
 @page "/pokemon"
 @using System.Net.Http
 @using System.Net.Http.Json
+@inject APIService API
 
-<h3>Pokémon List</h3>
-
-@if (pokemonList == null)
-{
-    <p>Henter data...</p>
-}
-else
-{
-    <ul>
-        @foreach (var pokemon in pokemonList)
+<div class="main-wrapper">
+        @if (pokemonList == null)
         {
-            <li>
-                <a href="/pokemon-details/@GetPokemonId(pokemon.Url)">
-                    @pokemon.Name
-                </a>
-            </li>
-
+            <p>Henter data...</p>
         }
-    </ul>
-}
+        else
+        {
+            <div class="pokemon-grid">
+                @foreach (var pokemon in pokemonList.Take(12))
+                {
+                    <div class="pokemon-card">
+                        <img src="@($"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{GetPokemonId(pokemon.Url)}.png")" alt="@pokemon.Name" />
+                        <p>
+                            <a href="/pokemon-details?IdOrName=@GetPokemonId(pokemon.Name)">
+                                @Capitalize(pokemon.Name)
+                            </a>
+                        </p>
+                    </div>
+                }
+            </div>
+
+            <div class="pagination">
+                <button class="page-button" @onclick="PrevPage" disabled="@(CurrentPage == 0)">← Forrige</button>
+                <input class="page-button" type="number" value="@(CurrentPage + 1)" @onchange="GoToPage" />
+                <button class="page-button" @onclick="NextPage">Næste →</button>
+            </div>
+        }
+</div>
+
+
 
 @code {
     private List<Pokemon> pokemonList;
-    
+    private int CurrentPage = 0;
+    private int inputPage = 1;
+    private const int PageSize = 12;
+
     private string GetPokemonId(string url)
     {
-        // Удаляем последний слэш, делим по "/"
         var parts = url.TrimEnd('/').Split('/');
         return parts.Last();
     }
@@ -36,21 +49,43 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var http = new HttpClient();
-        var response = await http.GetFromJsonAsync<PokemonResponse>(
-            "https://pokeapi.co/api/v2/pokemon?limit=20");
-
-        pokemonList = response.Results;
+        await LoadPage();
     }
 
-    public class Pokemon
+    private async Task LoadPage()
     {
-        public string Name { get; set; }
-        public string Url { get; set; }
+        int offset = CurrentPage * PageSize;
+        pokemonList = await API.GetAllPokemonsAsync(offset, PageSize);
     }
 
-    public class PokemonResponse
+    private async Task NextPage()
     {
-        public List<Pokemon> Results { get; set; }
+        CurrentPage++;
+        await LoadPage();
     }
-}
+
+    private async Task PrevPage()
+    {
+        if(CurrentPage > 0)
+        {
+            CurrentPage--;
+            await LoadPage();
+        }
+    }
+    
+    private async Task GoToPage(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int pageNumber) && pageNumber >= 1)
+        {
+            CurrentPage = pageNumber - 1;
+            await LoadPage();
+        }
+    }
+
+
+    private string Capitalize(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+        return char.ToUpper(input[0]) + input[1..];
+    }
+} 

@@ -1,6 +1,5 @@
-@page "/pokemon-details/{id:int}"
-@using PokeMin.Models
-
+@page "/pokemon-details"
+@inject APIService API
 
 <h3>Pokémon Details</h3>
 
@@ -10,33 +9,50 @@
 }
 else
 {
-    <p><strong>Navn:</strong> @details.Name</p>
-    <p><strong>Højde:</strong> @details.Height</p>
-    <p><strong>Vægt:</strong> @details.Weight</p>
-    <img src="@details.Sprites.Front_Default" />
-
-    <p><strong>Type(r):</strong></p>
-    <ul>
-        @foreach (var t in details.Types)
-        {
-            <li>@t.Type.Name</li>
-        }
-    </ul>
+    <div class="wrapper">
+        <div class="img-container">
+            <img src="@details.ImageUrl" />
+        </div>
+        <div class="details-container">
+            <div>
+                <p><strong>Navn:</strong> @Capitalize(details.Name)</p>
+                <p><strong>Højde:</strong> @details.Height</p>
+                <p><strong>Vægt:</strong> @details.Weight</p>
+            </div>
+            <div>
+                <p><strong>Type(r):</strong></p>
+                <ul>
+                    @foreach (var t in details.Types)
+                    {
+                        <li>@Capitalize(t)</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
 }
 
 @code {
-    private PokemonDetailsData details;
-    
-    [Parameter]
-    public int id { get; set; }
+    private PokemonCard? details;
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string IdOrName { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var http = new HttpClient();
-        details = await http.GetFromJsonAsync<PokemonDetailsData>(
-            $"https://pokeapi.co/api/v2/pokemon/{id}");
-
+        details = await API.GetPokemonDetailAsync(IdOrName);
     }
 
+    private int GetIdFromUrl(string url)
+    {
+        var parts = url.TrimEnd('/').Split('/');
+        return int.Parse(parts[^1]);
+    }
+
+    private string Capitalize(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+        return char.ToUpper(input[0]) + input[1..];
+    }
 }
