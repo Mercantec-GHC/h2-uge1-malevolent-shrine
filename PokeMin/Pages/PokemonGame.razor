@@ -9,7 +9,7 @@
 }
 else if (gameCompleted)
 {
-    // Экран результатов
+    // Result screen
     <div class="game-container results-screen">
         <h2 class="results-title">🎉 Finish!</h2>
         <div class="final-score">
@@ -82,7 +82,7 @@ else
         public string Url { get; set; }
     }
 
-    // Класс для  API со списком покемонов
+    // class for API with list of pokemons
     public class PokemonListResponse
     {
         public List<PokemonListItem> Results { get; set; }
@@ -109,9 +109,9 @@ else
     private async Task CheckAnswer(string answer)
     {
         if (isCorrect != null)
-            return; // уже ответил, не даём нажать ещё раз
+            return; // doesn't allow to click twice
 
-        // Воспроизводим звук клика при нажатии на кнопку
+        // play audio on click
         await JS.InvokeVoidAsync("gameAudio.playClickSound");
 
         userAnswer = answer;
@@ -121,30 +121,30 @@ else
         if (isCorrect == true)
         {
             score++;
-            // Воспроизводим звук правильного ответа
+            // play audio for correct answer
             await JS.InvokeVoidAsync("gameAudio.playCorrectSound");
         }
         else
         {
-            // Воспроизводим звук неправильного ответа
+            // playaudio for incorrect answer
             await JS.InvokeVoidAsync("gameAudio.playIncorrectSound");
         }
     }
 
     private async Task NextPokemon()
     {
-        // Воспроизводим звук перехода к следующему вопросу
+        // play audio for next question
         await JS.InvokeVoidAsync("gameAudio.playNextSound");
         
         currentIndex++;
 
         if (currentIndex >= pokemonList.Count)
         {
-            // Все покемоны закончились - показываем результаты
+            // show result screen
             gameCompleted = true;
-            // Воспроизводим звук завершения игры
+            // play audio for finishing game
             await JS.InvokeVoidAsync("gameAudio.playGameEndSound");
-            return; // Важно! Выходим из метода, не вызываем GenerateQuestion()
+            return; // Important! Quit method without calling GenerateQuestion()
         }
 
         await GenerateQuestion();
@@ -152,16 +152,16 @@ else
     
     private async Task RestartGame()
     {
-        // Воспроизводим звук перезапуска
+        // play audio for restart
         await JS.InvokeVoidAsync("gameAudio.playRestartSound");
     
-        // Сбрасываем все состояния
+        // reset all variables
         gameCompleted = false;
         currentIndex = 0;
         totalAttempts = 0;
         score = 0;
     
-        // Генерируем первый вопрос
+        // generate new question
         await GenerateQuestion();
     }
 }
