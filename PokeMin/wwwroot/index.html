@@ -27,6 +27,86 @@
         <span class="dismiss">🗙</span>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        // Функции для работы со звуками в игре
+        window.gameAudio = {
+            userInteracted: false,
+            welcomeSoundPlayed: false,
+            
+            // Инициализируем при первом взаимодействии
+            init: function() {
+                if (!this.userInteracted) {
+                    this.userInteracted = true;
+                    console.log('User interaction detected, audio enabled');
+                    // Воспроизводим приветственный звук при первом взаимодействии
+                    if (!this.welcomeSoundPlayed) {
+                        this.playWelcomeSound();
+                        this.welcomeSoundPlayed = true;
+                    }
+                }
+            },
+            
+            // Звук "Who's that Pokemon" при загрузке игры
+            playWelcomeSound: function() {
+                console.log('Playing welcome sound...');
+                // Исправленная ссылка на ваш Dropbox файл
+                const pokemonIntroUrl = 'https://www.dropbox.com/scl/fi/cwgx4ale4ieq7ljb99e4r/whosthatpokemon.wav?rlkey=92zsnopf8u5dn31qsc064r0sr&st=aurvkutx&dl=1';
+                
+                const audio = new Audio(pokemonIntroUrl);
+                audio.volume = 0.5;
+                audio.play().catch(e => {
+                    console.log('Could not play welcome sound:', e.message);
+                    // Fallback к простому приветственному звуку
+                    this.playSound('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJmutqt4AGnqo5YvnVMiNpvn3n8yc6PaVi0fFq/fS1JgJ0rZZqhvl6ZGLfWWPKx6GG/m7qxSNwxzXHkGXm3dXfZwYDSq3FY7ClZh4lJNn8+gXTkMZXvgmm5T2HLfPvk2XrHaJdR+g8Zw1Wk+XV7b6qtmfp9QV6v96z8cjm0eKD4=', 0.4);
+                });
+            },
+            
+            // Воспроизведение звука с проверкой взаимодействия
+            playSound: function(url, volume = 0.3) {
+                this.init();
+                const audio = new Audio(url);
+                audio.volume = volume;
+                audio.play().catch(e => {
+                    console.log('Could not play sound:', e.message);
+                });
+            },
+            
+            // Звук при загрузке страницы игры (теперь воспроизводит приветственный звук)
+            playGameStartSound: function() {
+                this.playWelcomeSound();
+            },
+            
+            // Звук при правильном ответе (успех)
+            playCorrectSound: function() {
+                // Радостный звук - высокий тон
+                this.playSound('data:audio/wav;base64,UklGRi4EAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQoEAACbdyuq4Z7v7b/+8O7m5+Hp6eXn4+Pj4ODg3t7d3NvZ2djX1tXU09LS0M/Ozs3My8vKycjIx8bGxcXExMPDwsLBwcDAwL+/vr69vby8u7u6urm5uLi3t7a2tbW0tLS0s7KysrGxsLCwsK+vr66urq2tra2srKyrq6urqqqqqqmqqamqqamoqKioqKenp6enp6empqampqWlpaWlpKSkpKSko6OjpKOjo6Ojo6OjpKOjo6OjpKSjpKSkpKSkpaWlpaWmpqampqampqenp6enqKioqKioqamqqqmqqquqq6qrq6usr6ytra2urq+vsLCwsLGysrKzs7O0tLS1tbW2tra3t7e4uLi5ubm6urq7u7u8vLy9vb6+vr/Av8DBwcLCwsPDxMTFxcbGx8fIyMnJysrLy8zMzc3Ozs/P0NDR0dLS09PU1NXV1tbX19jY2dna2tvb3N3d3t7f3+Dg4eLi4+Pk5OXl5ubn5+jo6enq6uvr7Ozt7e7u7+/w8PHx8vLz8/T09PX19vb29/f4+Pj5+fr6+vv7/Pz8/f3+/v7+////////////', 0.4);
+            },
+            
+            // Звук при неправильном ответе (ошибка)
+            playIncorrectSound: function() {
+                // Грустный звук - низкий тон
+                this.playSound('data:audio/wav;base64,UklGRnIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU4AAAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgAuLi4ALi4uAC4uLgA', 0.4);
+            },
+            
+            // Звук при переходе к следующему вопросу
+            playNextSound: function() {
+                // Нейтральный переходный звук
+                this.playSound('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJmutqt4AGnqo5YvnVMiNpvn3n8yc6PaVi0fFq/fS1JgJ0rZZqhvl6ZGLfWWPKx6GG/m7qxSNwxzXHkGXm3dXfZwYDSq3FY7ClZh4lJNn8+gXTkMZXvgmm5T2HLfPvk2XrHaJdR+g8Zw1Wk+XV7b6qtmfp9QV6v96z8cjm0eKD4=', 0.3);
+            },
+            
+            // Звук нажатия на кнопку (клик)
+            playClickSound: function() {
+                // Короткий клик
+                this.playSound('data:audio/wav;base64,UklGRpQAAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YXAAAACgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg', 0.2);
+            }
+        };
+        
+        // Добавляем слушатель для первого взаимодействия пользователя
+        document.addEventListener('click', () => window.gameAudio.init(), { once: true });
+        document.addEventListener('keydown', () => window.gameAudio.init(), { once: true });
+        document.addEventListener('touchstart', () => window.gameAudio.init(), { once: true });
+    </script>
+
 </body>
 
 </html>

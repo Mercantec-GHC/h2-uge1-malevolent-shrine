@@ -1,0 +1,167 @@
+@page "/pokemongame"
+@using PokeMin.Models
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+@if (pokemonList.Count == 0)
+{
+    <p>Indlæser Pokémoner...</p>
+}
+else if (gameCompleted)
+{
+    // Экран результатов
+    <div class="game-container results-screen">
+        <h2 class="results-title">🎉 Finish!</h2>
+        <div class="final-score">
+            <p>Result:</p>
+            <h3>@score из @pokemonList.Count</h3>
+            <p class="percentage">(@((score * 100 / pokemonList.Count))% правильных ответов)</p>
+        </div>
+        <button class="btn-restart" @onclick="RestartGame">🔄 Начать с начала</button>
+    </div>
+}
+else
+{
+    <div class="game-container">
+        <h3 class="game-title">Gæt Pokémonen!</h3>
+
+        <div class="game-stats">
+            <span>Progress: @totalAttempts / @pokemonList.Count</span>
+            <span>Score: @score</span>
+        </div>
+
+        <div class="pokemon-image-wrapper">
+            <PokemonImage Url="@pokemonList[currentIndex].Url" />
+        </div>
+
+        <p>Hvem er det?</p>
+
+        <div class="answer-options">
+            <button class="btn-answer" @onclick="() => CheckAnswer(correctName)" disabled="@(isCorrect != null)">@correctName</button>
+            <button class="btn-answer" @onclick="() => CheckAnswer(wrongName)" disabled="@(isCorrect != null)">@wrongName</button>
+        </div>
+
+        @if (isCorrect != null)
+        {
+            <p class="result-message @(isCorrect == true ? "correct" : "incorrect")">
+                @(isCorrect == true ? "✅ Rigtigt!" : "❌ Forkert!")
+            </p>
+            <button class="btn-next" @onclick="NextPokemon">Næste</button>
+        }
+    </div>
+}
+
+@code {
+    private string correctName;
+    private string wrongName;
+    private string userAnswer;
+    private bool? isCorrect;
+    private int score = 0;
+    private int totalAttempts = 0;
+    private bool gameCompleted = false;
+
+    private List<PokemonListItem> pokemonList = new();
+    private int currentIndex = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Загружаем список покемонов (например, 6 штук)
+        var response = await Http.GetFromJsonAsync<PokemonListResponse>(
+            "https://pokeapi.co/api/v2/pokemon?limit=6");
+
+        pokemonList = response?.Results ?? new List<PokemonListItem>();
+        await GenerateQuestion();
+        
+        // Убираем автовоспроизведение при загрузке - будет воспроизводиться после первого клика
+    }
+
+    // Класс для элементов списка покемонов
+    public class PokemonListItem
+    {
+        public string Name { get; set; }
+        public string Url { get; set; }
+    }
+
+    // Класс для  API со списком покемонов
+    public class PokemonListResponse
+    {
+        public List<PokemonListItem> Results { get; set; }
+    }
+
+    private async Task GenerateQuestion()
+    {
+        var correctPokemon = pokemonList[currentIndex];
+        correctName = correctPokemon.Name;
+
+        var random = new Random();
+        string wrong;
+        do
+        {
+            var randomIndex = random.Next(0, pokemonList.Count);
+            wrong = pokemonList[randomIndex].Name;
+        } while (wrong == correctName);
+
+        wrongName = wrong;
+        isCorrect = null;
+        userAnswer = null;
+    }
+
+    private async Task CheckAnswer(string answer)
+    {
+        if (isCorrect != null)
+            return; // уже ответил, не даём нажать ещё раз
+
+        // Воспроизводим звук клика при нажатии на кнопку
+        await JS.InvokeVoidAsync("gameAudio.playClickSound");
+
+        userAnswer = answer;
+        isCorrect = (answer == correctName);
+        totalAttempts++;
+
+        if (isCorrect == true)
+        {
+            score++;
+            // Воспроизводим звук правильного ответа
+            await JS.InvokeVoidAsync("gameAudio.playCorrectSound");
+        }
+        else
+        {
+            // Воспроизводим звук неправильного ответа
+            await JS.InvokeVoidAsync("gameAudio.playIncorrectSound");
+        }
+    }
+
+    private async Task NextPokemon()
+    {
+        // Воспроизводим звук перехода к следующему вопросу
+        await JS.InvokeVoidAsync("gameAudio.playNextSound");
+        
+        currentIndex++;
+
+        if (currentIndex >= pokemonList.Count)
+        {
+            // Все покемоны закончились - показываем результаты
+            gameCompleted = true;
+            // Воспроизводим звук завершения игры
+            await JS.InvokeVoidAsync("gameAudio.playGameEndSound");
+            return; // Важно! Выходим из метода, не вызываем GenerateQuestion()
+        }
+
+        await GenerateQuestion();
+    }
+    
+    private async Task RestartGame()
+    {
+        // Воспроизводим звук перезапуска
+        await JS.InvokeVoidAsync("gameAudio.playRestartSound");
+    
+        // Сбрасываем все состояния
+        gameCompleted = false;
+        currentIndex = 0;
+        totalAttempts = 0;
+        score = 0;
+    
+        // Генерируем первый вопрос
+        await GenerateQuestion();
+    }
+}
