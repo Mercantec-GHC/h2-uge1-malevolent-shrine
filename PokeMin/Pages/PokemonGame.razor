@@ -1,6 +1,5 @@
 @page "/pokemongame"
-@using PokeMin.Models
-@inject HttpClient Http
+@inject APIService ApiService
 @inject IJSRuntime JS
 
 @if (pokemonList.Count == 0)
@@ -60,33 +59,17 @@ else
     private int totalAttempts = 0;
     private bool gameCompleted = false;
 
-    private List<PokemonListItem> pokemonList = new();
+    private List<Pokemon> pokemonList = new();
     private int currentIndex = 0;
 
+    
+    
     protected override async Task OnInitializedAsync()
     {
-        // Загружаем список покемонов (например, 6 штук)
-        var response = await Http.GetFromJsonAsync<PokemonListResponse>(
-            "https://pokeapi.co/api/v2/pokemon?limit=6");
-
-        pokemonList = response?.Results ?? new List<PokemonListItem>();
+        // use APIService 
+        pokemonList = await ApiService.GetAllPokemonsAsync(limit: 6);
         await GenerateQuestion();
-        
-        // Убираем автовоспроизведение при загрузке - будет воспроизводиться после первого клика
-    }
-
-    // Класс для элементов списка покемонов
-    public class PokemonListItem
-    {
-        public string Name { get; set; }
-        public string Url { get; set; }
-    }
-
-    // class for API with list of pokemons
-    public class PokemonListResponse
-    {
-        public List<PokemonListItem> Results { get; set; }
-    }
+    } 
 
     private async Task GenerateQuestion()
     {

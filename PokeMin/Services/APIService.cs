@@ -22,17 +22,25 @@ namespace PokeMin.Services
 
         public async Task<PokemonCard?> GetPokemonDetailAsync(string nameOrId)
         {
-            var detail = await _httpClient.GetFromJsonAsync<PokemonDetailsData>($"https://pokeapi.co/api/v2/pokemon/{nameOrId}");
-            if (detail == null) return null;
-
-            return new PokemonCard
+            try
             {
-                Name = detail.Name,
-                ImageUrl = detail.Sprites.Front_Default,
-                Types = detail.Types.Select(type => type.Type.Name).ToList(),
-                Weight = detail.Weight,
-                Height = detail.Height
-            };
+                var detail = await _httpClient.GetFromJsonAsync<PokemonDetailsData>($"https://pokeapi.co/api/v2/pokemon/{nameOrId}");
+                if (detail == null) return null;
+
+                return new PokemonCard
+                {
+                    Name = detail.Name,
+                    ImageUrl = detail.Sprites.Front_Default,
+                    Types = detail.Types.Select(type => type.Type.Name).ToList(),
+                    Weight = detail.Weight,
+                    Height = detail.Height
+                };
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Ошибка при получении покемона: {ex.Message}");
+                return null;
+            }
         }
     }
 }
